@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Интерактивная схема — Караокеры vs рокеры</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .tool{display:grid;grid-template-columns:minmax(220px,260px) minmax(0,1fr) minmax(220px,280px);gap:16px;margin:24px 0 8px}
+  @media(max-width:1000px){.tool{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 14px 16px}
+  .panel h4{margin:0 0 10px;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);font-weight:700}
+
+  /* источники */
+  .src{display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:9px;cursor:pointer;
+       border:1px solid transparent;transition:.12s}
+  .src:hover{background:var(--panel2)}
+  .src.on{border-color:#2f3a48;background:var(--panel2)}
+  .src.sel{border-color:var(--gold);background:rgba(226,178,92,.07)}
+  .sw{width:30px;height:17px;border-radius:999px;background:#2a333f;position:relative;flex:0 0 30px;transition:.15s}
+  .sw:after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#7d8a99;transition:.15s}
+  .src.on .sw{background:rgba(92,201,139,.25)}
+  .src.on .sw:after{left:15px;background:var(--green)}
+  .src .nm{font-size:13.5px;line-height:1.25}
+  .src .sub{font-size:11px;color:var(--dim)}
+
+  /* пульт */
+  .rack{display:grid;gap:6px}
+  .ch{display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:8px;
+      padding:7px 10px;min-height:38px;transition:.15s;background:#101419}
+  .ch .num{width:22px;flex:0 0 22px;text-align:center;font:700 11px/1 ui-monospace,monospace;color:#5c6a79}
+  .ch .fill{flex:1;font-size:12.7px;color:#93a2b2}
+  .ch .tag{font-size:10.5px;color:#6f7d8c}
+  .ch.busy{background:rgba(92,201,139,.07);border-color:#2c4a3a}
+  .ch.busy .fill{color:#dbe6ef}
+  .ch.busy .num{color:var(--green)}
+  .ch.flash{border-color:var(--gold);box-shadow:0 0 0 2px rgba(226,178,92,.18)}
+  .ch.over{background:rgba(226,87,76,.1);border-color:#66302c}
+  .count{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;font-size:12.5px;color:var(--dim)}
+  .count b{font-size:19px;color:var(--gold);font-variant-numeric:tabular-nums}
+  .count b.bad{color:var(--red)}
+  .note{font-size:12px;color:var(--dim);margin-top:8px;line-height:1.5}
+  .alert{margin-top:10px;border:1px solid #66302c;background:rgba(226,87,76,.1);border-radius:9px;
+         padding:9px 11px;font-size:12.5px;color:#ffcfc9;display:none}
+  .alert.on{display:block}
+
+  /* выходы и цепочка */
+  .out{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:9px;padding:8px 10px;margin-bottom:7px;font-size:12.5px;background:#101419}
+  .out i{width:7px;height:7px;border-radius:50%;background:var(--cyan);flex:0 0 7px}
+  .chain{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;font-size:11.5px;color:var(--dim);margin-top:10px;padding-bottom:4px}
+  .chain span.b{border:1px solid var(--line);border-radius:7px;padding:5px 8px;background:#101419;color:#cbd6e2}
+  .chain span.a{color:#5c6a79}
+
+  /* питание */
+  .pwr{display:grid;gap:6px;margin-top:4px}
+  .pwr label{display:flex;align-items:center;gap:9px;font-size:13px;padding:6px 8px;border-radius:8px;cursor:pointer}
+  .pwr label:hover{background:var(--panel2)}
+  .pwr input{width:15px;height:15px;accent-color:#e2b25c}
+  .pwr .w{margin-left:auto;color:var(--dim);font-size:12px;font-variant-numeric:tabular-nums}
+  .total{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;
+         border-top:1px solid var(--line);padding-top:10px;font-size:12.5px;color:var(--dim)}
+  .total b{font-size:19px;color:var(--gold);font-variant-numeric:tabular-nums}
+
+  /* деталь */
+  #detail{margin-top:16px;border:1px solid var(--line);border-radius:14px;padding:16px 18px;background:var(--panel);min-height:96px}
+  #detail h3{margin:0 0 8px;font-size:16px;color:var(--fg)}
+  #detail dl{display:grid;grid-template-columns:max-content 1fr;gap:5px 16px;margin:0;font-size:13px}
+  #detail dt{color:var(--dim)}
+  #detail dd{margin:0;color:#dbe4ee}
+  #detail .hint{font-size:12.5px;color:var(--dim);margin:8px 0 0}
+  .vp{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 0}
+  .vp button{font:13.5px/1 inherit;background:var(--panel2);color:var(--fg);border:1px solid var(--line);
+             border-radius:999px;padding:8px 13px;cursor:pointer}
+  .vp button:hover{border-color:var(--gold);color:var(--gold)}
+</style>
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <div class="brand">КАРАОКЕРЫ <span>vs</span> РОКЕРЫ · 27.11</div>
+  <nav class="main">
+    <a href="index.html">Обзор</a>
+    <a href="tekhproekt.html">Техпроект</a>
+    <a href="ranbook.html">Ранбук</a>
+    <a href="sxema.html">Схема</a>
+    <a href="sxema-interaktiv.html" class="on">Интерактив</a>
+    <a href="pult.html">Пульт</a>
+    <a href="kartochki.html">Карточки</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+<section class="hero" style="padding-bottom:0">
+  <div class="kicker">Что с чем соединяется</div>
+  <h1>Схема, которую можно переключить</h1>
+  <p class="lead">Выключи гитару или отдай минус в моно — и увидишь, что станет с каналами пульта,
+  питанием и предупреждениями. Порядок как на площадке: источники → FLOW 8 → акустика и экран.</p>
+  <div class="vp">
+    <button data-v="all">Все три гитары сразу</button>
+    <button data-v="turn">Гитары по очереди</button>
+    <button data-v="mono">Три гитары + минус в моно</button>
+    <button data-v="worst">Худший случай: ещё и телефон</button>
+  </div>
+</section>
+
+<div class="tool">
+  <!-- источники -->
+  <div class="panel">
+    <h4>Источники</h4>
+    <div id="srcs"></div>
+    <div class="chain" id="chain"></div>
+    <p class="note" id="diNote"></p>
+  </div>
+
+  <!-- пульт -->
+  <div class="panel">
+    <h4>Behringer FLOW 8 · входы</h4>
+    <div class="rack" id="rack"></div>
+    <div class="count"><span>Свободно каналов</span><b id="free">—</b></div>
+    <div class="alert" id="alert"></div>
+    <p class="note">По документации: 2×XLR с фантомным питанием, 2×combo, 2 стереоканала, Hi-Z на линейных входах.
+    Стереопара занимает два канала.</p>
+  </div>
+
+  <!-- выходы + питание -->
+  <div class="panel">
+    <h4>Выходы</h4>
+    <div class="out"><i></i><span>Акустика main L/R · 2 кВт пик</span></div>
+    <div class="out"><i></i><span>Запись джема (aux/rec)</span></div>
+    <div class="out"><i style="background:var(--gold)"></i><span>Проектор — HDMI с ноутбука</span></div>
+
+    <h4 style="margin-top:16px">Питание, Вт</h4>
+    <div class="pwr" id="pwr"></div>
+    <div class="total"><span>Итого на аудио-видео линии</span><b id="watts">—</b></div>
+    <div class="alert" id="pwrAlert"></div>
+  </div>
+</div>
+
+<div id="detail"></div>
+
+<article style="max-width:900px;padding-top:26px">
+  <h2>Как читать эту схему</h2>
+  <p><strong>Каналы.</strong> Восьмёрка входов на пульте — самое узкое место проекта. Пока гитары играют
+  по очереди, каналы есть с запасом. Как только три гитары звучат одновременно, а минус идёт стерео,
+  свободным остаётся один вход, и любой дополнительный источник (телефон, второй ноутбук, Bluetooth)
+  упирается в стену.</p>
+  <p><strong>Педали.</strong> Три педали не занимают каналы: они стоят в разрыве гитарного тракта.
+  Но они требуют питания 9 В и, при длинном кабеле до пульта, DI-бокса — иначе ловим наводки.</p>
+  <p><strong>Питание.</strong> Считается по реальному потреблению, а не по «2 кВт на колонках».
+  Две независимые линии (аудио и видео), три удлинителя 1,5 мм², два сетевых фильтра.
+  Если сумма подходит к 2,2 кВт — это уже автомат на 10 А, и его выбьет в самый неподходящий момент.</p>
+</article>
+
+<footer class="bot">Значения мощностей — расчётные ориентиры для планирования, а не паспортные данные конкретных приборов.
+Проверить на месте: наличие Hi-Z на FLOW 8, землю в розетках, HDCP проектора.</footer>
+</div>
+
+<script>
+const SOURCES = [
+  {id:"mic1", name:"Микрофон 1", sub:"ведущий · XLR", ch:[1], cap:"XLR, +48 выключен", gain:"−18 дБ, HPF 100 Гц",
+   risk:"Фантом включать только для конденсаторного микрофона."},
+  {id:"mic2", name:"Микрофон 2", sub:"игрок · XLR", ch:[2], cap:"XLR, +48 выключен", gain:"−18 дБ, HPF 100 Гц",
+   risk:"Два динамических микрофона рядом ловят друг друга — разводить на полметра."},
+  {id:"g1", name:"Гитара 1 + 3 педали", sub:"актив / через DI", ch:[3], cap:"combo XLR/TRS", gain:"−24 дБ",
+   risk:"Три педали = три питания 9 В; после педалей DI, если кабель длиннее 6 м."},
+  {id:"g2", name:"Гитара 2", sub:"jack 6,3 мм", ch:[4], cap:"combo XLR/TRS", gain:"−24 дБ",
+   risk:"Пассивную гитару в combo без Hi-Z слышно тонко и звонко — не путать с «плохим звуком зала»."},
+  {id:"g3", name:"Гитара 3", sub:"пассив · нужен Hi-Z", ch:[5], cap:"линейный Hi-Z", gain:"−24 дБ",
+   risk:"Без входа с высоким импедансом теряется низ и тело звука."},
+  {id:"phone", name:"Телефон / Bluetooth", sub:"резерв", ch:[6], cap:"линейный или BT", gain:"−20 дБ",
+   risk:"Bluetooth даёт задержку 150–300 мс: для караоке не годится, только для подложки."},
+  {id:"laptop", name:"Ноутбук", sub:"минусовки · сайт · клип", ch:[7,8], cap:"mini-jack → 2×jack или USB", gain:"−6 дБ от голоса",
+   risk:"Аналог и USB одновременно не подключать: получите два пути и фазовую кашу."},
+];
+
+const PRESETS = {
+  all:  {g1:true,  g2:true,  g3:true,  phone:false, stereo:true},
+  turn: {g1:true,  g2:false, g3:false, phone:false, stereo:true},
+  mono: {g1:true,  g2:true,  g3:true,  phone:false, stereo:false},
+  worst:{g1:true,  g2:true,  g3:true,  phone:true,  stereo:true},
+};
+
+const POWER = [
+  {id:"pa",    name:"Акустика (60–70 % мощности)", w:700, line:"A"},
+  {id:"proj",  name:"Проектор", w:300, line:"B"},
+  {id:"laptop",name:"Ноутбук ведущего", w:80, line:"A"},
+  {id:"laptop2",name:"Второй ноутбук / телефон", w:45, line:"A"},
+  {id:"mix",   name:"Пульт FLOW 8", w:30, line:"A"},
+  {id:"pedals",name:"Педали и адаптеры 9 В", w:18, line:"A"},
+  {id:"router",name:"Роутер / свитч", w:15, line:"A"},
+  {id:"kettle",name:"Чайник в той же линии", w:2000, line:"B", bad:true},
+];
+
+let state = {...PRESETS.all};
+let diLong = true;          // кабель до пульта длиннее 6 м
+let selected = "g1";
+const powerOn = {pa:true, proj:true, laptop:true, laptop2:true, mix:true, pedals:true, router:true, kettle:false};
+
+function sourceOn(id){
+  if(id==="mic1"||id==="mic2") return true;
+  if(id==="laptop") return true;
+  return !!state[id];
+}
+
+function channels(){
+  const map = {}; // номер канала -> источник
+  for(const s of SOURCES){
+    if(!sourceOn(s.id)) continue;
+    const list = (s.id==="laptop" && !state.stereo) ? [7] : s.ch;
+    for(const c of list) map[c] = s.id;
+  }
+  return map;
+}
+
+function renderSources(){
+  const box = document.getElementById("srcs");
+  box.innerHTML = SOURCES.map(s=>{
+    const on = sourceOn(s.id);
+    const locked = (s.id==="mic1"||s.id==="mic2"||s.id==="laptop");
+    return `<div class="src ${on?"on":""} ${selected===s.id?"sel":""}" data-id="${s.id}">
+      <span class="sw" style="${locked?"opacity:.55":""}"></span>
+      <span><span class="nm">${s.name}</span><br><span class="sub">${on? s.sub : "выключено"}</span></span>
+    </div>`;
+  }).join("");
+  box.querySelectorAll(".src").forEach(el=>{
+    el.addEventListener("click", ev=>{
+      const id = el.dataset.id;
+      selected = id;
+      const locked = (id==="mic1"||id==="mic2"||id==="laptop");
+      if(!locked && ev.target.classList.contains("sw")){
+        if(id==="laptop") state.stereo = !state.stereo;
+        else state[id] = !state[id];
+      }
+      renderAll();
+    });
+  });
+
+  const c = document.getElementById("chain");
+  c.innerHTML = ["Гитара","педаль 1","педаль 2","педаль 3", diLong?"DI-бокс":"кабель",
+                 "пульт ch 3"].map((x,i)=>`<span class="b">${x}</span>${i<5?'<span class="a">→</span>':''}`).join("");
+}
+
+function renderRack(){
+  const map = channels();
+  const rack = document.getElementById("rack");
+  const over = Object.keys(map).length > 8;
+  rack.innerHTML = Array.from({length:8},(_,i)=>{
+    const n = i+1, src = map[n];
+    const s = SOURCES.find(x=>x.id===src);
+    return `<div class="ch ${src?"busy":""} ${src===selected?"flash":""} ${over?"":""}" data-ch="${n}">
+      <span class="num">${n}</span>
+      <span class="fill">${s ? s.name : "свободен"}</span>
+      <span class="tag">${s ? (n===7||n===8 ? "стерео" : (n<=2?"XLR":(n<=4?"combo":"Hi-Z"))) : ""}</span>
+    </div>`;
+  }).join("");
+
+  const used = new Set(Object.keys(map)).size;
+  const free = 8 - used;
+  const fEl = document.getElementById("free");
+  fEl.textContent = free < 0 ? "перегруз" : free;
+  fEl.className = free <= 0 ? "bad" : "";
+
+  const al = document.getElementById("alert");
+  if(free < 0){
+    al.className = "alert on";
+    al.innerHTML = "Источников больше, чем входов. Нужен сабмикшер (Xenyx 802/1002) на гитары или отказ от одного источника.";
+  } else if(free === 0){
+    al.className = "alert on";
+    al.innerHTML = "Запаса нет: любой дополнительный микрофон, телефон или второй ноутбук потребует менять схему. Держите один вход свободным до вечера.";
+  } else {
+    al.className = "alert";
+    al.innerHTML = "";
+  }
+}
+
+function renderDetail(){
+  const s = SOURCES.find(x=>x.id===selected);
+  const on = sourceOn(s.id);
+  const chs = on ? (s.id==="laptop" && !state.stereo ? "7" : s.ch.join(" / ")) : "—";
+  document.getElementById("detail").innerHTML = `
+    <h3>${s.name}${on?"":" · выключено"}</h3>
+    <dl>
+      <dt>Канал</dt><dd>${chs}</dd>
+      <dt>Разъём</dt><dd>${s.cap}</dd>
+      <dt>Гейн</dt><dd>${s.gain}</dd>
+      <dt>Риск</dt><dd>${s.risk}</dd>
+    </dl>
+    <p class="hint">${s.id==="g1" ? (diLong ? "Кабель длиннее 6 м: DI-бокс обязателен, иначе фон и потеря верхов." : "Кабель короче 6 м: можно без DI-бокса, но проверьте фон на месте.") : "Клик по источнику показывает его настройки; переключатель слева включает и выключает его."}</p>`;
+}
+
+function renderPower(){
+  const box = document.getElementById("pwr");
+  box.innerHTML = POWER.map(p=>`<label><input type="checkbox" data-id="${p.id}" ${powerOn[p.id]?"checked":""}>
+    <span>${p.name}</span><span class="w">${p.w} Вт</span></label>`).join("");
+  box.querySelectorAll("input").forEach(inp=>{
+    inp.addEventListener("change",()=>{ powerOn[inp.dataset.id]=inp.checked; renderPower(); });
+  });
+  const total = POWER.reduce((s,p)=> s + (powerOn[p.id]?p.w:0), 0);
+  const tEl = document.getElementById("watts");
+  tEl.textContent = total + " Вт";
+  tEl.className = total > 2200 ? "bad" : "";
+
+  const al = document.getElementById("pwrAlert");
+  const kettle = powerOn.kettle;
+  if(total > 3500){
+    al.className="alert on"; al.innerHTML="Это больше 16 А: такую нагрузку одна линия не держит. Разносить по линиям.";
+  } else if(kettle){
+    al.className="alert on"; al.innerHTML="Чайник в нашей линии — 2 кВт импульсом. Он даст щелчок в звук и просадку в момент включения.";
+  } else if(total > 2200){
+    al.className="alert on"; al.innerHTML="Близко к пределу автомата 10 А (2,2 кВт). Проектор стоит перевести на вторую линию.";
+  } else {
+    al.className="alert"; al.innerHTML="";
+  }
+}
+
+function renderAll(){ renderSources(); renderRack(); renderDetail(); }
+
+document.querySelectorAll(".vp button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    state = {...PRESETS[b.dataset.v]};
+    renderAll();
+  });
+});
+
+renderAll();
+renderPower();
+</script>
+</body>
+</html>

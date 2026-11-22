@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Караокеры против рокеров — пульт ведущего</title>
+<style>
+  :root{
+    --bg:#08090c; --fg:#f4f6fa; --dim:#9aa7b6; --gold:#e8b249; --red:#e2574c;
+    --card:#12151b; --line:#242b36;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);
+    font-family:"Segoe UI",Roboto,system-ui,sans-serif;overflow:hidden}
+  .deck{height:100vh;display:flex;flex-direction:column}
+  header{display:flex;align-items:center;gap:18px;padding:16px 30px;border-bottom:1px solid var(--line);flex:0 0 auto}
+  .blk{font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700}
+  .tmr{margin-left:auto;font-variant-numeric:tabular-nums;font-size:22px;font-weight:700;color:var(--dim)}
+  .tmr.run{color:var(--gold)}
+  .tmr.over{color:var(--red)}
+  .keyhint{margin-left:18px;font-size:12px;color:#5f6b7a}
+  main{flex:1;display:flex;align-items:center;padding:40px 60px 30px;min-height:0}
+  .slide{max-width:1500px;margin:0 auto;width:100%}
+  h1{font-size:clamp(34px,5.2vw,84px);line-height:1.04;margin:0 0 26px;letter-spacing:-.01em;overflow-wrap:break-word}
+  h1 .accent{color:var(--gold)}
+  .lead{font-size:clamp(20px,2.2vw,34px);line-height:1.35;color:#cfd8e3;margin:0 0 26px;max-width:1300px}
+  ul.lines{list-style:none;margin:0;padding:0;display:grid;gap:14px;max-width:1300px}
+  ul.lines li{font-size:clamp(18px,1.9vw,30px);line-height:1.32;color:#e7edf5;padding-left:34px;position:relative}
+  ul.lines li:before{content:"";position:absolute;left:0;top:.55em;width:16px;height:2px;background:var(--gold)}
+  .big{font-size:clamp(24px,3vw,46px);font-weight:700}
+  footer{flex:0 0 auto;padding:14px 30px 20px;display:flex;gap:20px;align-items:center;
+    color:#55606e;font-size:12.5px;border-top:1px solid var(--line)}
+  /* заметки ведущему */
+  #notes{position:fixed;right:0;top:0;bottom:0;width:min(480px,42vw);background:rgba(10,12,16,.97);
+    border-left:1px solid var(--line);padding:26px 26px 40px;overflow:auto;display:none;z-index:20;
+    box-shadow:-30px 0 60px rgba(0,0,0,.55)}
+  #notes.on{display:block}
+  #notes h3{margin:0 0 12px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+  #notes p{margin:0 0 12px;font-size:15.5px;line-height:1.5;color:#c6d1de}
+  #notes .warn{color:var(--red)}
+  /* затемнение */
+  .blackout{position:fixed;inset:0;background:#000;display:none;z-index:40;align-items:center;justify-content:center}
+  .blackout.on{display:flex}
+  .blackout span{color:#1c2129;font-size:14px;letter-spacing:.3em;text-transform:uppercase}
+  /* проекторный режим: только суть, крупно */
+  body.proj header,body.proj footer{display:none}
+  body.proj main{padding:60px}
+  body.proj h1{font-size:clamp(52px,7.4vw,120px)}
+  body.proj ul.lines li{font-size:clamp(24px,2.6vw,40px)}
+  body.proj .lead{font-size:clamp(24px,2.6vw,40px)}
+  .prog{display:flex;gap:6px;margin-left:auto}
+  .prog i{width:22px;height:4px;background:#2a323d;border-radius:2px}
+  .prog i.on{background:var(--gold)}
+</style>
+</head>
+<body>
+<div class="deck">
+  <header>
+    <div class="blk" id="blk">—</div>
+    <div class="prog" id="prog"></div>
+    <div class="tmr" id="tmr">00:00</div>
+    <div class="keyhint">← → слайды · N заметки · T таймер · B затемнение · F на весь экран</div>
+  </header>
+  <main><div class="slide" id="slide"></div></main>
+  <footer>
+    <span>Караокеры против рокеров</span>
+    <span>·</span>
+    <span>кадры вечера принимаются до 00:00</span>
+    <span>·</span>
+    <span id="mode">режим: ведущий</span>
+  </footer>
+</div>
+<div id="notes"></div>
+<div class="blackout" id="bo"><span>антракт</span></div>
+<script>
+const SLIDES = [
+{blk:"Титул", t:"Караокеры <span class='accent'>против</span> рокеров",
+ lead:"Вечер, где зал поёт под минус и под живую гитару. Играют все, зрителей нет.",
+ lines:["Три правила зала: поём вместе · телефон в кармане, кроме кадров вечера · решаем аплодисментами"],
+ notes:"<p>Выходим после мини-концерта. Не объясняем правила целиком — только три строки на экране и обещание «дальше разберётесь по ходу».</p><p>Оператор к этому моменту уже держит открытыми обе минусовки блока 1.</p><p class='warn'>Не показывать на экране списки артистов и ответы — они только в печатных карточках.</p>", sec:0},
+{blk:"Блок 1 · 20–30 мин", t:"Караокеры против рокеров",
+ lead:"Тема: русский рок",
+ lines:["Караоке под минус → ответ живой гитарой → снова караоке → снова гитара",
+        "По две песни на сторону. Вторая сторона не повторяет хит первой",
+        "Зал голосует аплодисментами после последнего ответа"],
+ notes:"<p><b>Минута на выбор песен</b> — ровно минута, вслух считаем.</p><p>Гитаристы держат две песни и одну запасную. Порядок жёсткий: караоке → гитара → караоке → гитара.</p><p>Пример пары: «Беспечный ангел» под минус → «Звезда по имени Солнце» под гитару.</p><p class='warn'>Минус не открылся — без паузы берём запасной, никаких «сейчас настроим». Время поджимает — играем одну пару и закрываем блок.</p>", sec:600},
+{blk:"Блок 2 · 8–10 мин", t:"Случайная песня",
+ lead:"Зал выбирает тему — участник выбирает формат: гитара или караоке",
+ lines:["Ведущий тянет песню из подходящего списка. Один перетяг разрешён",
+        "Поём один припев. Зал может подхватить",
+        "Победителя нет: это способ дать микрофон новым людям"],
+ notes:"<p>2–3 добровольца подряд. На ход — один-два фильтра, не все сразу: «русский поп 90-х», а не «русский + поп + 90-е + весёлое».</p><p>Для гитариста тянем только из короткого списка того, что музыканты реально сыграют.</p><p class='warn'>Случайный выбор на сайте не проверен — тянем вручную из видимой выдачи или из заранее собранной стопки. Не тратим вечер на отладку кнопки.</p>", sec:300},
+{blk:"Блок 5 · 6–8 мин", t:"Угадай по трём аккордам",
+ lead:"Гитаристы играют короткий фрагмент — зал слушает до сигнала",
+ lines:["По сигналу поднимите руку и назовите песню",
+        "Первый ответивший начинает припев — зал подхватывает",
+        "Один балл за название. Штрафов нет"],
+ notes:"<p>Три знакомых песни с узнаваемым ритмом или вступлением — не три случайных аккорда.</p><p>5–8 секунд на первый показ. Если тишина — гитарист играет рифф или напевает пару нот без слов.</p><p>Слово даём одному человеку, перекрикивание не считаем.</p><p>Хорошо ставится туда, где караокеры поют, а гитаристы подыгрывают — отдельного голосования не требует.</p>", sec:420},
+{blk:"Блок 3 · 12–15 мин", t:"Карточный баттл",
+ lead:"Две команды тянут язык, настроение, жанр и десятилетие",
+ lines:["45 секунд на выбор песни из подходящего списка. Один перетяг на команду за раунд",
+        "Каждая команда поёт припев",
+        "Зал решает, кто точнее попал в задание"],
+ notes:"<p>Четыре отдельные стопки на столе: язык (красная — русский, чёрная — английский), настроение, жанр, десятилетие.</p><p>Жанр и десятилетие собраны только из того, для чего реально готовы песни. Пример задания: русский / весёлое / поп / 90-е.</p><p class='warn'>Пусто в стопке — предлагаем убрать десятилетие и запускаем отсчёт только после появления вариантов: это не тратит перетяг.</p><p>Колоду на 54 карты не смешиваем с четырьмя стопками — это отдельная механика.</p>", sec:780},
+{blk:"Блок 4 · 12–15 мин", t:"Караоке-крокодил",
+ lead:"Карточку у тебя на лбу видят все, кроме тебя",
+ lines:["30 секунд подсказок: сначала жесты, с 15-й секунды можно напеть мелодию без слов",
+        "Угадал артиста — сам выбираешь и поёшь его песню: под гитару или под минус",
+        "Плюс карточка «Как петь»: один припев в этой роли. Один обмен роли"],
+ notes:"<p>3–4 добровольца по одному. Имя артиста — только на физической карточке, на экран не выводим.</p><p>Зал не произносит имя, названия песен и слова. Через 15 секунд разрешаем напев без слов.</p><p>Не угадал за 30 секунд — открываем ответ, даём выбор: новая карточка или передать ход.</p><p>На каждого артиста — 2–3 хита с минусами и отдельная короткая стопка для гитаристов. Смешиваем поколения: Пугачёва, «Кино», «Руки Вверх!», Земфира, «Звери», Баста, Zivert.</p>", sec:780},
+{blk:"Блок 6 · 15–25 мин", t:"Конкурс промптов Suno",
+ lead:"Три команды, три минуты, одна песня",
+ lines:["Заявка: сюжет · музыкальный стиль · короткая фраза, которую споёт весь зал",
+        "Представление — до 40 секунд на команду",
+        "Зал выбирает самый цепкий припев. Его и поём вместе"],
+ notes:"<p>Один исходный крючок на всех, например: «Мы пришли попеть, а гитара решила устроить тур».</p><p>Пример заявки: «Тревожный рок про последний поезд; припев: “Подождите, мы ещё допеваем!”».</p><p class='warn'>Один аккаунт на всех — состязаются три идеи, оператор запускает только победившую. Остальные выступают живьём, у телефона никто не ждёт.</p><p>На сцене генерацию не ждём: после голосования счёт на четыре, гитара держит пульс, зал поёт выбранную фразу.</p><p>Оператору Suno: если нужен именно сыгранный в этот вечер рифф — записать чистый фрагмент 15–30 секунд, Upload → Extend → Get Whole Song, проверить стык, скачать файл. Джем и живой припев остаются запасным вариантом.</p>", sec:1200},
+{blk:"Джем", t:"Свободный микрофон",
+ lead:"Гитара не останавливается",
+ lines:["Любой подходит с любой песней — формат выбирает сам",
+        "Оператор держит джем в записи: он ещё пригодится для финального клипа"],
+ notes:"<p>Это буфер: если блоки отстали — джем короче, если ушли вперёд — джем длиннее. Программу он не ломает.</p><p>Пишем джем на диктофон или камеру: он подложка для слайд-шоу, если клип не успеет.</p>", sec:900},
+{blk:"23:45 → 00:30", t:"Кадры вечера и клип",
+ lead:"Одно фото или короткое видео с настроением вечера — до 00:00",
+ lines:["23:45 — напоминание про кадры",
+        "00:00 — отсечка подборки: 10–15 фото и видео",
+        "00:30 — на экране короткий клип под джем или песню вечера"],
+ notes:"<p>Объявить один раз в начале и коротко напомнить перед отсечкой.</p><p>Берём кадры, которые люди в кадре согласны показать залу.</p><p class='warn'>00:20 — если монтаж или новый трек не готовы, переключаемся на обычное слайд-шоу под сохранённый джем. 00:25 проверяем воспроизведение на проекторе и колонках. 00:30 показываем то, что реально работает.</p><p>Согласие на показ в зале — не согласие на публикацию в интернете.</p>", sec:0},
+{blk:"Финал", t:"Общий припев",
+ lead:"Одна песня, весь зал, без конкурса",
+ lines:["Текст припева — на экран, крупно",
+        "Гитара и минус вместе, зал поёт"],
+ notes:"<p>Финальный припев — то, что люди унесут с вечера. Заранее решить, какая это песня, и написать текст на экран.</p><p>После — объявить, где будут фото, и выключить проектор.</p>", sec:0}
+];
+let i = 0, timer = null, left = 0, running = false;
+const slideEl = document.getElementById('slide'), blkEl = document.getElementById('blk'),
+      tmrEl = document.getElementById('tmr'), notesEl = document.getElementById('notes'),
+      progEl = document.getElementById('prog');
+
+function fmt(s){ s=Math.max(0,s|0); return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+function render(){
+  const s = SLIDES[i];
+  blkEl.textContent = s.blk;
+  slideEl.innerHTML = '<h1>'+s.t+'</h1>' + (s.lead?'<p class="lead">'+s.lead+'</p>':'')
+    + (s.lines && s.lines.length ? '<ul class="lines">'+s.lines.map(x=>'<li>'+x+'</li>').join('')+'</ul>' : '');
+  notesEl.innerHTML = '<h3>ведущему</h3>' + s.notes;
+  progEl.innerHTML = SLIDES.map((_,k)=>'<i class="'+(k<=i?'on':'')+'"></i>').join('');
+  clearInterval(timer); running=false; left = s.sec||0; tmrEl.className='tmr'; tmrEl.textContent = s.sec? fmt(left) : '—';
+  document.getElementById('mode').textContent = 'слайд '+(i+1)+' из '+SLIDES.length;
+}
+function tick(){
+  left--; 
+  tmrEl.textContent = left>=0 ? fmt(left) : '-'+fmt(-left);
+  tmrEl.className = 'tmr ' + (left<0?'over':'run');
+  if(left<0 && left%60===0) tmrEl.textContent = '-'+fmt(-left);
+}
+document.addEventListener('keydown', e=>{
+  const k = e.key.toLowerCase();
+  if(e.key==='ArrowRight'||e.key==='PageDown'){ i=Math.min(SLIDES.length-1,i+1); render(); }
+  if(e.key==='ArrowLeft'||e.key==='PageUp'){ i=Math.max(0,i-1); render(); }
+  if(k==='n'){ notesEl.classList.toggle('on'); }
+  if(k==='t'){ if(!SLIDES[i].sec){return;} if(running){clearInterval(timer);running=false;}
+               else {running=true; timer=setInterval(tick,1000);} }
+  if(k==='b'){ document.getElementById('bo').classList.toggle('on'); }
+  if(k==='p'){ document.body.classList.toggle('proj');
+               document.getElementById('mode').textContent = document.body.classList.contains('proj')?'режим: проектор':'режим: ведущий'; }
+  if(k==='f'){ if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+  if(k==='r'){ render(); }
+});
+render();
+</script>
+
+<a href="index.html" style="position:fixed;left:14px;bottom:14px;z-index:60;
+   background:rgba(18,22,29,.92);border:1px solid #2b3542;color:#e2b25c;border-radius:999px;
+   padding:7px 14px;font:13px/1 'Segoe UI',Roboto,sans-serif;text-decoration:none">← проект</a>
+</body>
+</html>

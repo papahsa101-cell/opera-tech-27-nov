@@ -1,0 +1,87 @@
+/* Общий стиль мини-сайта «Караокеры vs рокеры» — 27.11.2026 */
+:root{
+  --bg:#0b0d11; --panel:#12161d; --panel2:#171c25; --line:#242c38;
+  --fg:#eaeff6; --dim:#98a6b6; --gold:#e2b25c; --cyan:#5fb8e8; --red:#e2574c; --green:#5cc98b;
+  --max:1080px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);
+  font:16px/1.62 "Segoe UI",Roboto,-apple-system,system-ui,sans-serif;
+  background-image:radial-gradient(900px 400px at 15% -10%,rgba(226,178,92,.07),transparent 60%)}
+a{color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(226,178,92,.35)}
+a:hover{border-bottom-color:var(--gold)}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 20px 70px}
+
+/* шапка */
+header.top{border-bottom:1px solid var(--line);background:rgba(11,13,17,.92);
+  position:sticky;top:0;z-index:50;backdrop-filter:blur(8px)}
+.top-in{max-width:var(--max);margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.brand{font-weight:700;letter-spacing:.2px;font-size:15px}
+.brand span{color:var(--gold)}
+nav.main{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+nav.main a{font-size:13.5px;color:var(--dim);border:1px solid transparent;border-radius:8px;padding:6px 11px}
+nav.main a:hover{color:var(--fg);border-color:var(--line)}
+nav.main a.on{color:#12161d;background:var(--gold);border-color:var(--gold);font-weight:600}
+
+/* обложка */
+.hero{padding:52px 0 26px}
+.hero .kicker{color:var(--gold);letter-spacing:.22em;font-size:12px;text-transform:uppercase;margin-bottom:14px}
+.hero h1{font-size:clamp(32px,5vw,54px);line-height:1.05;margin:0 0 16px;letter-spacing:-.02em}
+.hero p.lead{font-size:18px;color:var(--dim);max-width:760px;margin:0 0 22px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:26px 0 6px}
+.fact{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.fact b{display:block;font-size:22px;color:var(--gold);font-weight:700;line-height:1.2}
+.fact span{font-size:12.5px;color:var(--dim)}
+
+/* карточки-ссылки */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:22px 0}
+.tile{display:block;background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:18px 18px 16px;border-bottom:1px solid var(--line);transition:border-color .15s,transform .15s}
+.tile:hover{border-color:var(--gold);transform:translateY(-2px)}
+.tile h3{margin:0 0 6px;font-size:16px;color:var(--fg)}
+.tile p{margin:0;color:var(--dim);font-size:13.5px}
+
+/* контент */
+article{padding-top:34px;max-width:860px}
+article h1{font-size:clamp(28px,4vw,40px);margin:0 0 8px;letter-spacing:-.015em}
+article h2{font-size:24px;margin:38px 0 12px;padding-top:10px;border-top:1px solid var(--line)}
+article h3{font-size:18.5px;margin:26px 0 8px}
+article p{margin:0 0 14px}
+article ul,article ol{margin:0 0 16px;padding-left:22px}
+article li{margin:0 0 7px}
+article li::marker{color:var(--gold)}
+article strong{color:#fff}
+article code{background:#1a2029;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13.5px;
+  font-family:"JetBrains Mono",Consolas,ui-monospace,monospace;color:#d9e3ee}
+article pre{background:#0e1319;border:1px solid var(--line);border-radius:10px;padding:14px 16px;overflow:auto}
+article pre code{background:none;border:none;padding:0;font-size:13px}
+article blockquote{margin:0 0 16px;padding:10px 16px;border-left:3px solid var(--gold);background:#12161d;color:var(--dim)}
+article hr{border:none;border-top:1px solid var(--line);margin:26px 0}
+article table{width:100%;border-collapse:collapse;margin:6px 0 20px;font-size:14px}
+article th,article td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+article th{background:var(--panel2);font-weight:600;color:#fff}
+article tbody tr:nth-child(even) td{background:rgba(255,255,255,.015)}
+article img{max-width:100%;border-radius:10px}
+
+/* чек-листы */
+.task{display:flex;gap:9px;align-items:flex-start;margin:0 0 8px}
+.task .box{flex:0 0 16px;height:16px;margin-top:4px;border:1.5px solid var(--gold);border-radius:4px}
+.props{display:grid;gap:10px;margin:18px 0}
+.prop{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.prop b{color:var(--gold)}
+
+/* подвал */
+footer.bot{border-top:1px solid var(--line);color:#64707f;font-size:12.5px;padding:22px 0 0;margin-top:50px}
+footer.bot a{color:#8fa0b2;border-bottom-color:#33404f}
+
+/* печать */
+@media print{
+  body{background:#fff;color:#000;font-size:12pt}
+  header.top,footer.bot,.tiles,.hero .facts{display:none}
+  a{color:#000;border:none}
+  article{max-width:none;padding:0}
+  article h2{border-color:#bbb}
+  article table th,article table td{border-color:#999}
+  article pre,article code{background:#f4f4f4;color:#000;border-color:#ccc}
+}

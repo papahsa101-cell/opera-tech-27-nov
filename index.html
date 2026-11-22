@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Технический проект вечера — Караокеры vs рокеры</title>
+<meta name="description" content="Технический проект вечера «Караокеры vs рокеры», лофт ОПЕРА, 27 ноября 2026.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <div class="brand">КАРАОКЕРЫ <span>vs</span> РОКЕРЫ · 27.11</div>
+  <nav class="main"><a href="index.html" class="on">Обзор</a><a href="tekhproekt.html">Техпроект</a><a href="ranbook.html">Ранбук</a><a href="sxema.html">Схема</a><a href="sxema-interaktiv.html">Интерактив</a><a href="pult.html">Пульт</a><a href="kartochki.html">Карточки</a></nav>
+</div></header>
+<div class="wrap">
+
+<section class="hero">
+  <div class="kicker">Технический проект · лофт ОПЕРА · пятница</div>
+  <h1>Караокеры vs рокеры<br>27 ноября 2026</h1>
+  <p class="lead">Всё, что нужно, чтобы вечер не встал из-за кабеля, канала или YouTube: проект,
+  тайминг, схема, пульт ведущего и карточки для печати — на одном сайте.</p>
+  <div class="facts">
+    <div class="fact"><b>18:30</b><span>сбор гостей</span></div>
+    <div class="fact"><b>19:00</b><span>начало программы</span></div>
+    <div class="fact"><b>02:00</b><span>планируемый финал</span></div>
+    <div class="fact"><b>25</b><span>максимум гостей</span></div>
+    <div class="fact"><b>7 из 8</b><span>каналов пульта занято</span></div>
+  </div>
+</section>
+
+<div class="tiles">
+  <a class="tile" href="tekhproekt.html"><h3>Технический проект</h3>
+    <p>Состав оборудования, канальная карта FLOW 8, электрика, YouTube и VPN, 12 рисков с планами Б.</p></a>
+  <a class="tile" href="ranbook.html"><h3>Ранбук вечера</h3>
+    <p>Тайминг по часам, роли, чек-листы за неделю / за день / за час и что делать, если что-то сломалось.</p></a>
+  <a class="tile" href="sxema.html"><h3>Схема подключения</h3>
+    <p>Аудио, видео, питание и сеть на одной картинке — с пометками, где DI-боксы и пилоты.</p></a>
+  <a class="tile" href="sxema-interaktiv.html"><h3>Интерактивная схема</h3>
+    <p>Переключи вариант — и увидишь, что происходит с каналами, питанием и картинкой на экране.</p></a>
+  <a class="tile" href="pult.html"><h3>Пульт ведущего</h3>
+    <p>Слайды на проектор: ← → блоки, N — заметки, T — таймер, B — затемнение, P — проекторный режим.</p></a>
+  <a class="tile" href="kartochki.html"><h3>Карточки для печати</h3>
+    <p>Шесть стопок: язык, настроение, жанр, десятилетие, артисты, «как петь». Ctrl+P на A4.</p></a>
+</div>
+
+<article style="max-width:880px">
+  <h2>Три вещи, из-за которых вечер обычно и встаёт</h2>
+  <p><strong>1. Каналы.</strong> По документации FLOW 8 — 8 входов: 2 XLR с фантомом, 2 combo, 2 стереоканала,
+  Hi-Z на линейных. Два микрофона, три гитары и стерео-минус занимают семь. Восьмой держим под резерв.</p>
+  <p><strong>2. YouTube.</strong> В каталоге сайта 1954 песни, и только у 12 есть готовый видео-ID: остальные
+  кнопки открывают поиск YouTube. В лофте VPN нет, поэтому основные минусовки — офлайн-файлами, VPN на VPS — резерв.</p>
+  <p><strong>3. Питание.</strong> Аудио-видео контур — около 0,9–1,4 кВт. Нужны две независимые линии,
+  три удлинителя 1,5 мм² и два пилота. Свет и чайник — не наша линия.</p>
+
+  <h2>Как это править</h2>
+  <p>Тексты живут в двух файлах проекта: <code>PROEKT-27-11.md</code> (технический проект) и
+  <code>RUNBOOK.md</code> (тайминг и чек-листы). Правишь markdown — я пересобираю сайт одной командой,
+  и страницы обновляются. Схема, пульт и карточки — отдельные файлы, их правка тоже не ломает остальное.</p>
+</article>
+
+<footer class="bot">
+  Лофт «ОПЕРА», Берсеневский пер. 5 стр. 4 · пятница, 27 ноября 2026 · сбор 18:30, начало 19:00
+  <br>Сайт собран из рабочих файлов проекта. Тексты правятся в <code>PROEKT-27-11.md</code> и <code>RUNBOOK.md</code>, затем пересборка: <code>python gen_site.py</code>.
+</footer>
+</div>
+</body>
+</html>

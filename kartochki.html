@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Карточки вечера — печать</title>
+<style>
+  @page{ size:A4 portrait; margin:8mm; }
+  *{box-sizing:border-box}
+  body{margin:0;background:#e9e9e9;font-family:"Segoe UI",Roboto,system-ui,sans-serif;color:#111}
+  .sheet{width:194mm;margin:0 auto;background:#fff;padding:0 0 4mm}
+  h2.sec{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#666;
+         margin:6mm 4mm 3mm;padding-bottom:2mm;border-bottom:1px solid #ccc}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:3mm;padding:0 4mm}
+  .card{border:1.5px dashed #999;border-radius:3mm;padding:5mm 4mm;min-height:36mm;
+        display:flex;flex-direction:column;justify-content:center;break-inside:avoid;page-break-inside:avoid}
+  .card .top{font-size:9pt;letter-spacing:.1em;text-transform:uppercase;color:#888;margin-bottom:2mm}
+  .card .val{font-size:22pt;font-weight:800;line-height:1.1}
+  .card .sub{font-size:9.5pt;color:#555;margin-top:2mm}
+  .card.red{border-color:#c0392b} .card.red .val{color:#c0392b}
+  .card.blk{border-color:#111;background:#111;color:#fff}
+  .card.blk .val{color:#fff} .card.blk .top{color:#999} .card.blk .sub{color:#bbb}
+  .card.gold{border-color:#b58015} .card.gold .val{color:#8a6100}
+  .pagebreak{page-break-after:always}
+  .hint{max-width:194mm;margin:4mm auto;font-size:10.5pt;color:#444;line-height:1.45}
+  .hint b{color:#111}
+  @media screen{ .sheet{box-shadow:0 2px 14px rgba(0,0,0,.16);margin:6mm auto} }
+@media print{.site-nav-injected{display:none}}
+</style>
+</head>
+<body><div class="site-nav-injected" style="max-width:194mm;margin:6mm auto 0;display:flex;gap:10px;align-items:center;font:13px/1.4 'Segoe UI',Roboto,sans-serif"><a href="index.html" style="color:#8a6100">← проект</a><span style="color:#777">Карточки: печать A4, книжная, масштаб 100%, резать по пунктирным линиям</span></div>
+
+<div class="hint"><b>Как печатать:</b> Ctrl+P → A4, книжная, масштаб 100%, поля «по умолчанию». Резать по пунктирным линиям.
+<b>Стопки:</b> язык · настроение · жанр · десятилетие · артисты (только для крокодила) · «как петь». Жанр и десятилетие — только те, к которым реально готовы песни.</div>
+
+<!-- ЛИСТ 1: язык + настроение -->
+<div class="sheet">
+  <h2 class="sec">Стопка 1 · Язык</h2>
+  <div class="grid">
+    <div class="card red"><div class="top">язык</div><div class="val">Русский</div></div>
+    <div class="card blk"><div class="top">язык</div><div class="val">Английский</div></div>
+    <div class="card red"><div class="top">язык</div><div class="val">Русский</div></div>
+    <div class="card blk"><div class="top">язык</div><div class="val">Английский</div></div>
+    <div class="card red"><div class="top">язык</div><div class="val">Русский</div></div>
+    <div class="card blk"><div class="top">язык</div><div class="val">Английский</div></div>
+  </div>
+  <h2 class="sec">Стопка 2 · Настроение</h2>
+  <div class="grid">
+    <div class="card"><div class="top">настроение</div><div class="val">Весёлое</div></div>
+    <div class="card"><div class="top">настроение</div><div class="val">Грустное</div></div>
+    <div class="card"><div class="top">настроение</div><div class="val">Лирическое</div></div>
+    <div class="card"><div class="top">настроение</div><div class="val">Залихватское</div></div>
+    <div class="card"><div class="top">настроение</div><div class="val">Весёлое</div></div>
+    <div class="card"><div class="top">настроение</div><div class="val">Грустное</div></div>
+    <div class="card"><div class="top">настроение</div><div class="val">Лирическое</div></div>
+    <div class="card"><div class="top">настроение</div><div class="val">Залихватское</div></div>
+  </div>
+</div>
+<div class="pagebreak"></div>
+
+<!-- ЛИСТ 2: жанр + десятилетие -->
+<div class="sheet">
+  <h2 class="sec">Стопка 3 · Жанр <span style="text-transform:none;letter-spacing:0">(только то, что реально готовы спеть)</span></h2>
+  <div class="grid">
+    <div class="card"><div class="top">жанр</div><div class="val">Рок</div></div>
+    <div class="card"><div class="top">жанр</div><div class="val">Поп</div></div>
+    <div class="card"><div class="top">жанр</div><div class="val">Панк</div></div>
+    <div class="card"><div class="top">жанр</div><div class="val">Рэп</div></div>
+    <div class="card"><div class="top">жанр</div><div class="val">Инди</div></div>
+    <div class="card"><div class="top">жанр</div><div class="val">Шансон</div></div>
+    <div class="card"><div class="top">жанр</div><div class="val">Рок</div></div>
+    <div class="card"><div class="top">жанр</div><div class="val">Поп</div></div>
+    <div class="card"><div class="top">жанр</div><div class="val">Панк</div></div>
+    <div class="card"><div class="top">жанр</div><div class="val">Рэп</div></div>
+    <div class="card"><div class="top">жанр</div><div class="val">Инди</div></div>
+    <div class="card"><div class="top">жанр</div><div class="val">Шансон</div></div>
+  </div>
+  <h2 class="sec">Стопка 4 · Десятилетие</h2>
+  <div class="grid">
+    <div class="card"><div class="top">десятилетие</div><div class="val">80-е</div></div>
+    <div class="card"><div class="top">десятилетие</div><div class="val">90-е</div></div>
+    <div class="card"><div class="top">десятилетие</div><div class="val">2000-е</div></div>
+    <div class="card"><div class="top">десятилетие</div><div class="val">2010-е</div></div>
+    <div class="card"><div class="top">десятилетие</div><div class="val">80-е</div></div>
+    <div class="card"><div class="top">десятилетие</div><div class="val">90-е</div></div>
+    <div class="card"><div class="top">десятилетие</div><div class="val">2000-е</div></div>
+    <div class="card"><div class="top">десятилетие</div><div class="val">2010-е</div></div>
+  </div>
+</div>
+<div class="pagebreak"></div>
+
+<!-- ЛИСТ 3: артисты (крокодил) -->
+<div class="sheet">
+  <h2 class="sec">Стопка 5 · Артист <span style="text-transform:none;letter-spacing:0">(только на физической карточке, на экран не выводить)</span></h2>
+  <div class="grid">
+    <div class="card gold"><div class="top">артист</div><div class="val">Пугачёва</div><div class="sub">2–3 хита с минусом</div></div>
+    <div class="card gold"><div class="top">артист</div><div class="val">Кино</div><div class="sub">есть гитарный вариант</div></div>
+    <div class="card gold"><div class="top">артист</div><div class="val">Руки Вверх!</div><div class="sub">зал подхватит</div></div>
+    <div class="card gold"><div class="top">артист</div><div class="val">Земфира</div><div class="sub">не форсировать</div></div>
+    <div class="card gold"><div class="top">артист</div><div class="val">Звери</div><div class="sub">гитара ок</div></div>
+    <div class="card gold"><div class="top">артист</div><div class="val">Баста</div><div class="sub">минус обязателен</div></div>
+    <div class="card gold"><div class="top">артист</div><div class="val">Zivert</div><div class="sub">молодой зал</div></div>
+    <div class="card gold"><div class="top">артист</div><div class="val">ДДТ</div><div class="sub">гитарный</div></div>
+    <div class="card gold"><div class="top">артист</div><div class="val">Сплин</div><div class="sub">гитарный</div></div>
+    <div class="card gold"><div class="top">артист</div><div class="val">Мумий Тролль</div><div class="sub">минус</div></div>
+    <div class="card gold"><div class="top">артист</div><div class="val">Ленинград</div><div class="sub">осторожно с текстом</div></div>
+    <div class="card gold"><div class="top">артист</div><div class="val">Би-2</div><div class="sub">зал знает</div></div>
+  </div>
+</div>
+<div class="pagebreak"></div>
+
+<!-- ЛИСТ 4: как петь -->
+<div class="sheet">
+  <h2 class="sec">Стопка 6 · Как петь</h2>
+  <div class="grid">
+    <div class="card"><div class="top">как петь</div><div class="val">Синоптик</div><div class="sub">с серьёзностью срочного прогноза погоды</div></div>
+    <div class="card"><div class="top">как петь</div><div class="val">Дирижёр</div><div class="sub">начни сам и рукой позови зал на последнюю строчку</div></div>
+    <div class="card"><div class="top">как петь</div><div class="val">Рок-звезда на минималках</div><div class="sub">стадионное шоу, не сходя с места</div></div>
+    <div class="card"><div class="top">как петь</div><div class="val">Тайная миссия</div><div class="sub">будто передаёшь соседу воображаемый чемодан и никто не должен заметить</div></div>
+    <div class="card"><div class="top">как петь</div><div class="val">Синоптик</div><div class="sub">с серьёзностью срочного прогноза погоды</div></div>
+    <div class="card"><div class="top">как петь</div><div class="val">Дирижёр</div><div class="sub">начни сам и рукой позови зал на последнюю строчку</div></div>
+    <div class="card"><div class="top">как петь</div><div class="val">Рок-звезда на минималках</div><div class="sub">стадионное шоу, не сходя с места</div></div>
+    <div class="card"><div class="top">как петь</div><div class="val">Тайная миссия</div><div class="sub">мимикой, если руки заняты гитарой</div></div>
+  </div>
+</div>
+
+</body>
+</html>
