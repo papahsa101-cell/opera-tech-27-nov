@@ -75,6 +75,20 @@ article img{max-width:100%;border-radius:10px}
 footer.bot{border-top:1px solid var(--line);color:#64707f;font-size:12.5px;padding:22px 0 0;margin-top:50px}
 footer.bot a{color:#8fa0b2;border-bottom-color:#33404f}
 
+/* чек-лист участников */
+.pl{list-style:none;margin:0 0 22px;padding:0}
+.pl li{display:flex;gap:11px;align-items:flex-start;padding:9px 11px;border:1px solid var(--line);
+  border-radius:10px;margin:0 0 7px;background:var(--panel);cursor:pointer;transition:.12s}
+.pl li:hover{border-color:#39465a}
+.pl li .bx{flex:0 0 17px;height:17px;margin-top:2px;border:1.5px solid #4a586a;border-radius:5px;position:relative}
+.pl li.done{border-color:#2c4a3a;background:rgba(92,201,139,.06)}
+.pl li.done .bx{border-color:var(--green);background:rgba(92,201,139,.18)}
+.pl li.done .bx:after{content:"";position:absolute;left:4px;top:1px;width:5px;height:9px;
+  border:2px solid var(--green);border-top:0;border-left:0;transform:rotate(42deg)}
+.pl li.done .tx{color:#8d9aa8;text-decoration:line-through}
+.pl .who{margin-left:auto;font-size:11.5px;color:var(--dim);white-space:nowrap;padding-left:10px}
+.pl-sum{font-size:13px;color:var(--dim);margin:-8px 0 26px}
+
 /* печать */
 @media print{
   body{background:#fff;color:#000;font-size:12pt}

@@ -21,6 +21,7 @@ NAV = [
     ("sxema-interaktiv.html", "Интерактив"),
     ("pult.html", "Пульт"),
     ("kartochki.html", "Карточки"),
+    ("uchastnikam.html", "Участникам"),
 ]
 
 TEMPLATE = """<!DOCTYPE html>
@@ -148,6 +149,8 @@ index_body = """
     <p>Слайды на проектор: ← → блоки, N — заметки, T — таймер, B — затемнение, P — проекторный режим.</p></a>
   <a class="tile" href="kartochki.html"><h3>Карточки для печати</h3>
     <p>Шесть стопок: язык, настроение, жанр, десятилетие, артисты, «как петь». Ctrl+P на A4.</p></a>
+  <a class="tile" href="uchastnikam.html"><h3>Участникам</h3>
+    <p>Что взять с собой, что оставить дома, во сколько и куда приходить — короткий список без техники.</p></a>
 </div>
 
 <article style="max-width:880px">
@@ -191,6 +194,79 @@ if "site-nav-injected" not in cards:
     cards = cards.replace("</style>", "@media print{.site-nav-injected{display:none}}\n</style>", 1)
 (OUT / "kartochki.html").write_text(cards, encoding="utf-8")
 print("готово: kartochki.html")
+
+# ---------- 4b. Участникам: чек-лист сборов ----------
+ITEMS = [
+    ("Звук и сцена", [
+        ("Микшерный пульт (FLOW 8)", "Стас", False),
+        ("Микрофон", "", False),
+        ("Микрофонная стойка", "", False),
+        ("Провода для микрофона", "", False),
+        ("Пюпитер", "", False),
+        ("Удлинитель минимум на 3 розетки — 2 шт.", "Стас", False),
+    ]),
+    ("Гитара", [
+        ("Гитара", "", False),
+        ("Струны (запасной комплект)", "", False),
+        ("Каподастер", "", False),
+        ("Медиаторы", "", False),
+        ("Провод для гитары", "", False),
+        ("Педаль эффектов", "", False),
+    ]),
+    ("Прочее", [
+        ("Планшет", "", False),
+    ]),
+]
+
+def items_html():
+    out = []
+    total = sum(len(v) for _t, v in ITEMS)
+    for title, rows in ITEMS:
+        out.append(f"<h3>{title}</h3>")
+        out.append('<ul class="pl">')
+        for name, who, _ in rows:
+            who_html = f'<span class="who">{who}</span>' if who else ""
+            out.append(f'<li data-k="{name}"><span class="bx"></span><span class="tx">{name}</span>{who_html}</li>')
+        out.append("</ul>")
+    return "\n".join(out), total
+
+items_body, items_total = items_html()
+uch = f"""
+<section class="hero" style="padding-bottom:10px">
+  <div class="kicker">Участникам</div>
+  <h1>Кто что приносит</h1>
+  <p class="lead">Список сборов: отмечай галочкой, что уже в машине. Позиции добавляются по мере диктовки —
+  страница обновляется вместе с сайтом, так что ссылку можно держать открытой на телефоне.</p>
+</section>
+
+<article style="max-width:820px;padding-top:6px">
+  <p class="pl-sum">Всего позиций: <b id="pl-total">{items_total}</b> · отмечено: <b id="pl-done">0</b></p>
+  {items_body}
+  <p style="color:var(--dim);font-size:13.5px">Галочки хранятся в этом браузере: у каждого своя копия списка.
+  Если пункт нужно закрепить за конкретным человеком — скажи, подпишу.</p>
+</article>
+
+<script>
+const LIST = document.querySelectorAll('.pl li');
+const KEY = 'opera-27-11-packing';
+const saved = JSON.parse(localStorage.getItem(KEY) || '[]');
+function refresh(){{
+  const done = document.querySelectorAll('.pl li.done').length;
+  document.getElementById('pl-done').textContent = done;
+}}
+LIST.forEach(li=>{{
+  if(saved.includes(li.dataset.k)) li.classList.add('done');
+  li.addEventListener('click', ()=>{{
+    li.classList.toggle('done');
+    const now = [...document.querySelectorAll('.pl li.done')].map(x=>x.dataset.k);
+    localStorage.setItem(KEY, JSON.stringify(now));
+    refresh();
+  }});
+}});
+refresh();
+</script>
+"""
+page("uchastnikam.html", "Участникам: что взять", uch)
 
 # ---------- 5. Служебное ----------
 (OUT / ".nojekyll").write_text("", encoding="utf-8")

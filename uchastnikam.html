@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Участникам: что взять — Караокеры vs рокеры</title>
+<meta name="description" content="Технический проект вечера «Караокеры vs рокеры», лофт ОПЕРА, 27 ноября 2026.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="top"><div class="top-in">
+  <div class="brand">КАРАОКЕРЫ <span>vs</span> РОКЕРЫ · 27.11</div>
+  <nav class="main"><a href="index.html">Обзор</a><a href="tekhproekt.html">Техпроект</a><a href="ranbook.html">Ранбук</a><a href="sxema.html">Схема</a><a href="sxema-interaktiv.html">Интерактив</a><a href="pult.html">Пульт</a><a href="kartochki.html">Карточки</a><a href="uchastnikam.html" class="on">Участникам</a></nav>
+</div></header>
+<div class="wrap">
+
+<section class="hero" style="padding-bottom:10px">
+  <div class="kicker">Участникам</div>
+  <h1>Кто что приносит</h1>
+  <p class="lead">Список сборов: отмечай галочкой, что уже в машине. Позиции добавляются по мере диктовки —
+  страница обновляется вместе с сайтом, так что ссылку можно держать открытой на телефоне.</p>
+</section>
+
+<article style="max-width:820px;padding-top:6px">
+  <p class="pl-sum">Всего позиций: <b id="pl-total">13</b> · отмечено: <b id="pl-done">0</b></p>
+  <h3>Звук и сцена</h3>
+<ul class="pl">
+<li data-k="Микшерный пульт (FLOW 8)"><span class="bx"></span><span class="tx">Микшерный пульт (FLOW 8)</span><span class="who">Стас</span></li>
+<li data-k="Микрофон"><span class="bx"></span><span class="tx">Микрофон</span></li>
+<li data-k="Микрофонная стойка"><span class="bx"></span><span class="tx">Микрофонная стойка</span></li>
+<li data-k="Провода для микрофона"><span class="bx"></span><span class="tx">Провода для микрофона</span></li>
+<li data-k="Пюпитер"><span class="bx"></span><span class="tx">Пюпитер</span></li>
+<li data-k="Удлинитель минимум на 3 розетки — 2 шт."><span class="bx"></span><span class="tx">Удлинитель минимум на 3 розетки — 2 шт.</span><span class="who">Стас</span></li>
+</ul>
+<h3>Гитара</h3>
+<ul class="pl">
+<li data-k="Гитара"><span class="bx"></span><span class="tx">Гитара</span></li>
+<li data-k="Струны (запасной комплект)"><span class="bx"></span><span class="tx">Струны (запасной комплект)</span></li>
+<li data-k="Каподастер"><span class="bx"></span><span class="tx">Каподастер</span></li>
+<li data-k="Медиаторы"><span class="bx"></span><span class="tx">Медиаторы</span></li>
+<li data-k="Провод для гитары"><span class="bx"></span><span class="tx">Провод для гитары</span></li>
+<li data-k="Педаль эффектов"><span class="bx"></span><span class="tx">Педаль эффектов</span></li>
+</ul>
+<h3>Прочее</h3>
+<ul class="pl">
+<li data-k="Планшет"><span class="bx"></span><span class="tx">Планшет</span></li>
+</ul>
+  <p style="color:var(--dim);font-size:13.5px">Галочки хранятся в этом браузере: у каждого своя копия списка.
+  Если пункт нужно закрепить за конкретным человеком — скажи, подпишу.</p>
+</article>
+
+<script>
+const LIST = document.querySelectorAll('.pl li');
+const KEY = 'opera-27-11-packing';
+const saved = JSON.parse(localStorage.getItem(KEY) || '[]');
+function refresh(){
+  const done = document.querySelectorAll('.pl li.done').length;
+  document.getElementById('pl-done').textContent = done;
+}
+LIST.forEach(li=>{
+  if(saved.includes(li.dataset.k)) li.classList.add('done');
+  li.addEventListener('click', ()=>{
+    li.classList.toggle('done');
+    const now = [...document.querySelectorAll('.pl li.done')].map(x=>x.dataset.k);
+    localStorage.setItem(KEY, JSON.stringify(now));
+    refresh();
+  });
+});
+refresh();
+</script>
+
+<footer class="bot">
+  Лофт «ОПЕРА», Берсеневский пер. 5 стр. 4 · пятница, 27 ноября 2026 · сбор 18:30, начало 19:00
+  <br>Сайт собран из рабочих файлов проекта. Тексты правятся в <code>PROEKT-27-11.md</code> и <code>RUNBOOK.md</code>, затем пересборка: <code>python gen_site.py</code>.
+</footer>
+</div>
+</body>
+</html>
