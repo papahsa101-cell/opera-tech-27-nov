@@ -100,7 +100,8 @@
     <button data-v="all">Все три гитары сразу</button>
     <button data-v="turn">Гитары по очереди</button>
     <button data-v="mono">Три гитары + минус в моно</button>
-    <button data-v="worst">Худший случай: ещё и телефон</button>
+    <button data-v="radio">Два радиомикрофона</button>
+    <button data-v="worst">Худший случай: радио + телефон</button>
   </div>
 </section>
 
@@ -158,135 +159,156 @@
 
 <script>
 const SOURCES = [
-  {id:"mic1", name:"Микрофон 1", sub:"ведущий · XLR", ch:[1], cap:"XLR, +48 выключен", gain:"−18 дБ, HPF 100 Гц",
+  {id:"mic1",  name:"Микрофон 1", sub:"ведущий · XLR",       pref:[1], fixed:true,
+   cap:"XLR, +48 выключен", gain:"−18 дБ, HPF 100 Гц",
    risk:"Фантом включать только для конденсаторного микрофона."},
-  {id:"mic2", name:"Микрофон 2", sub:"игрок · XLR", ch:[2], cap:"XLR, +48 выключен", gain:"−18 дБ, HPF 100 Гц",
+  {id:"mic2",  name:"Микрофон 2", sub:"игрок · XLR",         pref:[2], fixed:true,
+   cap:"XLR, +48 выключен", gain:"−18 дБ, HPF 100 Гц",
    risk:"Два динамических микрофона рядом ловят друг друга — разводить на полметра."},
-  {id:"g1", name:"Гитара 1 + 3 педали", sub:"актив / через DI", ch:[3], cap:"combo XLR/TRS", gain:"−24 дБ",
+  {id:"radio1", name:"Радиомикрофон 1", sub:"беспроводной · XLR", pref:[6], state:true,
+   cap:"XLR из приёмника", gain:"−20 дБ",
+   risk:"Батарейки в корпусе микрофона: запасной комплект обязателен, иначе микрофон умрёт посреди блока."},
+  {id:"radio2", name:"Радиомикрофон 2", sub:"беспроводной · XLR", pref:[8], state:true,
+   cap:"XLR из приёмника", gain:"−20 дБ",
+   risk:"Второй радиоканал занимает вход, который нужен стерео-минусу. При стерео минимум один канал уходит в моно."},
+  {id:"g1",    name:"Гитара 1 + 3 педали", sub:"актив / через DI", pref:[3], state:true,
+   cap:"combo XLR/TRS", gain:"−24 дБ",
    risk:"Три педали = три питания 9 В; после педалей DI, если кабель длиннее 6 м."},
-  {id:"g2", name:"Гитара 2", sub:"jack 6,3 мм", ch:[4], cap:"combo XLR/TRS", gain:"−24 дБ",
-   risk:"Пассивную гитару в combo без Hi-Z слышно тонко и звонко — не путать с «плохим звуком зала»."},
-  {id:"g3", name:"Гитара 3", sub:"пассив · нужен Hi-Z", ch:[5], cap:"линейный Hi-Z", gain:"−24 дБ",
+  {id:"g2",    name:"Гитара 2", sub:"jack 6,3 мм",           pref:[4], state:true,
+   cap:"combo XLR/TRS", gain:"−24 дБ",
+   risk:"Пассивную гитару в combo без Hi-Z слышно тонко — не путать с «плохим звуком зала»."},
+  {id:"g3",    name:"Гитара 3", sub:"пассив · нужен Hi-Z",   pref:[5], state:true,
+   cap:"линейный Hi-Z", gain:"−24 дБ",
    risk:"Без входа с высоким импедансом теряется низ и тело звука."},
-  {id:"phone", name:"Телефон / Bluetooth", sub:"резерв", ch:[6], cap:"линейный или BT", gain:"−20 дБ",
+  {id:"phone", name:"Телефон / Bluetooth", sub:"резерв",     pref:[6], state:true,
+   cap:"линейный или BT", gain:"−20 дБ",
    risk:"Bluetooth даёт задержку 150–300 мс: для караоке не годится, только для подложки."},
-  {id:"laptop", name:"Ноутбук", sub:"минусовки · сайт · клип", ch:[7,8], cap:"mini-jack → 2×jack или USB", gain:"−6 дБ от голоса",
-   risk:"Аналог и USB одновременно не подключать: получите два пути и фазовую кашу."},
+  {id:"laptop",name:"Ноутбук", sub:"минусовки · сайт · клип", pref:[7,8], fixed:true,
+   cap:"mini-jack → 2×jack или USB", gain:"−6 дБ от голоса",
+   risk:"Аналог и USB одновременно не подключать: два пути дают фазовую кашу."},
 ];
 
 const PRESETS = {
-  all:  {g1:true,  g2:true,  g3:true,  phone:false, stereo:true},
-  turn: {g1:true,  g2:false, g3:false, phone:false, stereo:true},
-  mono: {g1:true,  g2:true,  g3:true,  phone:false, stereo:false},
-  worst:{g1:true,  g2:true,  g3:true,  phone:true,  stereo:true},
+  all:   {g1:true, g2:true, g3:true, radio1:false, radio2:false, phone:false, stereo:true},
+  turn:  {g1:true, g2:false,g3:false,radio1:false, radio2:false, phone:false, stereo:true},
+  mono:  {g1:true, g2:true, g3:true, radio1:false, radio2:false, phone:false, stereo:false},
+  radio: {g1:true, g2:true, g3:true, radio1:true,  radio2:true,  phone:false, stereo:true},
+  worst: {g1:true, g2:true, g3:true, radio1:true,  radio2:true,  phone:true,  stereo:true},
 };
 
 const POWER = [
-  {id:"pa",    name:"Акустика (60–70 % мощности)", w:700, line:"A"},
-  {id:"proj",  name:"Проектор", w:300, line:"B"},
-  {id:"laptop",name:"Ноутбук ведущего", w:80, line:"A"},
-  {id:"laptop2",name:"Второй ноутбук / телефон", w:45, line:"A"},
-  {id:"mix",   name:"Пульт FLOW 8", w:30, line:"A"},
-  {id:"pedals",name:"Педали и адаптеры 9 В", w:18, line:"A"},
-  {id:"router",name:"Роутер / свитч", w:15, line:"A"},
-  {id:"kettle",name:"Чайник в той же линии", w:2000, line:"B", bad:true},
+  {id:"pa",     name:"Акустика (60–70 % мощности)", w:700},
+  {id:"proj",   name:"Проектор",                    w:300},
+  {id:"laptop", name:"Ноутбук ведущего",            w:80},
+  {id:"laptop2",name:"Второй ноутбук / телефон",    w:45},
+  {id:"mix",    name:"Пульт FLOW 8",                w:30},
+  {id:"radio",  name:"Приёмник радиомикрофонов",    w:10},
+  {id:"pedals", name:"Педали и адаптеры 9 В",       w:18},
+  {id:"router", name:"Роутер / свитч",              w:15},
+  {id:"kettle", name:"Чайник в той же линии",       w:2000},
 ];
 
 let state = {...PRESETS.all};
-let diLong = true;          // кабель до пульта длиннее 6 м
-let selected = "g1";
-const powerOn = {pa:true, proj:true, laptop:true, laptop2:true, mix:true, pedals:true, router:true, kettle:false};
+let diLong = true;
+let selected = "radio1";
+const powerOn = {pa:true, proj:true, laptop:true, laptop2:true, mix:true, radio:true, pedals:true, router:true, kettle:false};
 
 function sourceOn(id){
-  if(id==="mic1"||id==="mic2") return true;
-  if(id==="laptop") return true;
+  if(id==="mic1"||id==="mic2"||id==="laptop") return true;
+  if(id==="phone") return !!state.phone;
   return !!state[id];
 }
 
 function channels(){
-  const map = {}; // номер канала -> источник
-  for(const s of SOURCES){
-    if(!sourceOn(s.id)) continue;
-    const list = (s.id==="laptop" && !state.stereo) ? [7] : s.ch;
-    for(const c of list) map[c] = s.id;
+  const map = {}, overflow = [], free = new Set([1,2,3,4,5,6,7,8]);
+  const order = ["mic1","mic2","laptop","radio1","radio2","g1","g2","g3","phone"];
+  for(const id of order){
+    if(!sourceOn(id)) continue;
+    const s = SOURCES.find(x=>x.id===id);
+    const prefs = (id==="laptop" && !state.stereo) ? [7] : s.pref;
+    const ch = prefs.find(c=>free.has(c));
+    if(ch === undefined){ overflow.push(id); continue; }
+    map[ch] = id; free.delete(ch);
+    if(id==="laptop" && state.stereo && prefs.length === 2 && free.has(prefs[1])){
+      map[prefs[1]] = id; free.delete(prefs[1]);
+    }
   }
-  return map;
+  return {map, overflow, free:[...free].sort((a,b)=>a-b)};
 }
 
 function renderSources(){
   const box = document.getElementById("srcs");
   box.innerHTML = SOURCES.map(s=>{
     const on = sourceOn(s.id);
-    const locked = (s.id==="mic1"||s.id==="mic2"||s.id==="laptop");
     return `<div class="src ${on?"on":""} ${selected===s.id?"sel":""}" data-id="${s.id}">
-      <span class="sw" style="${locked?"opacity:.55":""}"></span>
+      <span class="sw" style="${s.fixed?"opacity:.55":""}"></span>
       <span><span class="nm">${s.name}</span><br><span class="sub">${on? s.sub : "выключено"}</span></span>
     </div>`;
   }).join("");
   box.querySelectorAll(".src").forEach(el=>{
-    el.addEventListener("click", ev=>{
+    el.addEventListener("click", ()=>{
       const id = el.dataset.id;
       selected = id;
-      const locked = (id==="mic1"||id==="mic2"||id==="laptop");
-      if(!locked && ev.target.classList.contains("sw")){
-        if(id==="laptop") state.stereo = !state.stereo;
-        else state[id] = !state[id];
-      }
+      if(id === "laptop") state.stereo = !state.stereo;
+      else if(id !== "mic1" && id !== "mic2") state[id] = !state[id];
       renderAll();
     });
   });
 
   const c = document.getElementById("chain");
-  c.innerHTML = ["Гитара","педаль 1","педаль 2","педаль 3", diLong?"DI-бокс":"кабель",
-                 "пульт ch 3"].map((x,i)=>`<span class="b">${x}</span>${i<5?'<span class="a">→</span>':''}`).join("");
+  c.innerHTML = ["Гитара","педаль 1","педаль 2","педаль 3", diLong?"DI-бокс":"кабель","пульт ch 3"]
+    .map((x,i)=>`<span class="b">${x}</span>${i<5?'<span class="a">→</span>':''}`).join("");
 }
 
 function renderRack(){
-  const map = channels();
+  const {map, overflow} = channels();
   const rack = document.getElementById("rack");
-  const over = Object.keys(map).length > 8;
   rack.innerHTML = Array.from({length:8},(_,i)=>{
-    const n = i+1, src = map[n];
-    const s = SOURCES.find(x=>x.id===src);
-    return `<div class="ch ${src?"busy":""} ${src===selected?"flash":""} ${over?"":""}" data-ch="${n}">
+    const n = i+1, src = map[n], s = SOURCES.find(x=>x.id===src);
+    return `<div class="ch ${s?"busy":""} ${src===selected?"flash":""}" data-ch="${n}">
       <span class="num">${n}</span>
       <span class="fill">${s ? s.name : "свободен"}</span>
-      <span class="tag">${s ? (n===7||n===8 ? "стерео" : (n<=2?"XLR":(n<=4?"combo":"Hi-Z"))) : ""}</span>
+      <span class="tag">${s ? (n>=7 ? "стерео" : (n<=2 ? "XLR" : (n<=4 ? "combo" : (n===5 ? "Hi-Z" : "line")))) : ""}</span>
     </div>`;
+  }).join("") + overflow.map(id=>{
+    const s = SOURCES.find(x=>x.id===id);
+    return `<div class="ch over"><span class="num">!</span><span class="fill">${s.name} — нет входа</span>
+      <span class="tag">перегруз</span></div>`;
   }).join("");
 
-  const used = new Set(Object.keys(map)).size;
-  const free = 8 - used;
+  const used = Object.keys(map).length;
+  const freeCount = 8 - used;
   const fEl = document.getElementById("free");
-  fEl.textContent = free < 0 ? "перегруз" : free;
-  fEl.className = free <= 0 ? "bad" : "";
+  fEl.textContent = overflow.length ? "−" + overflow.length : freeCount;
+  fEl.className = (freeCount <= 0 || overflow.length) ? "bad" : "";
 
   const al = document.getElementById("alert");
-  if(free < 0){
+  if(overflow.length){
     al.className = "alert on";
-    al.innerHTML = "Источников больше, чем входов. Нужен сабмикшер (Xenyx 802/1002) на гитары или отказ от одного источника.";
-  } else if(free === 0){
+    al.innerHTML = `Источников больше, чем входов на ${overflow.length}. Варианты: минус в моно (−1 вход), ` +
+      `сабмикшер Xenyx 802 на гитары (−2 входа) или один радиомикрофон вместо двух.`;
+  } else if(freeCount === 0){
     al.className = "alert on";
-    al.innerHTML = "Запаса нет: любой дополнительный микрофон, телефон или второй ноутбук потребует менять схему. Держите один вход свободным до вечера.";
+    al.innerHTML = "Запаса нет: любой дополнительный микрофон, телефон или второй ноутбук потребует менять схему.";
   } else {
-    al.className = "alert";
-    al.innerHTML = "";
+    al.className = "alert"; al.innerHTML = "";
   }
 }
 
 function renderDetail(){
   const s = SOURCES.find(x=>x.id===selected);
+  const {map, free} = channels();
+  const own = Object.keys(map).filter(k=>map[k]===s.id).map(Number);
   const on = sourceOn(s.id);
-  const chs = on ? (s.id==="laptop" && !state.stereo ? "7" : s.ch.join(" / ")) : "—";
   document.getElementById("detail").innerHTML = `
     <h3>${s.name}${on?"":" · выключено"}</h3>
     <dl>
-      <dt>Канал</dt><dd>${chs}</dd>
+      <dt>Канал</dt><dd>${on ? (own.length ? own.join(" и ") : "нет свободного входа") : "—"}</dd>
       <dt>Разъём</dt><dd>${s.cap}</dd>
       <dt>Гейн</dt><dd>${s.gain}</dd>
       <dt>Риск</dt><dd>${s.risk}</dd>
     </dl>
-    <p class="hint">${s.id==="g1" ? (diLong ? "Кабель длиннее 6 м: DI-бокс обязателен, иначе фон и потеря верхов." : "Кабель короче 6 м: можно без DI-бокса, но проверьте фон на месте.") : "Клик по источнику показывает его настройки; переключатель слева включает и выключает его."}</p>`;
+    <p class="hint">Свободные входы сейчас: ${free.length ? free.join(", ") : "нет"}.</p>`;
 }
 
 function renderPower(){
@@ -300,27 +322,17 @@ function renderPower(){
   const tEl = document.getElementById("watts");
   tEl.textContent = total + " Вт";
   tEl.className = total > 2200 ? "bad" : "";
-
   const al = document.getElementById("pwrAlert");
-  const kettle = powerOn.kettle;
-  if(total > 3500){
-    al.className="alert on"; al.innerHTML="Это больше 16 А: такую нагрузку одна линия не держит. Разносить по линиям.";
-  } else if(kettle){
-    al.className="alert on"; al.innerHTML="Чайник в нашей линии — 2 кВт импульсом. Он даст щелчок в звук и просадку в момент включения.";
-  } else if(total > 2200){
-    al.className="alert on"; al.innerHTML="Близко к пределу автомата 10 А (2,2 кВт). Проектор стоит перевести на вторую линию.";
-  } else {
-    al.className="alert"; al.innerHTML="";
-  }
+  if(total > 3500){ al.className="alert on"; al.innerHTML="Больше 16 А: одна линия не держит, разносить по линиям."; }
+  else if(powerOn.kettle){ al.className="alert on"; al.innerHTML="Чайник в нашей линии — 2 кВт импульсом: щелчок в звук и просадка при включении."; }
+  else if(total > 2200){ al.className="alert on"; al.innerHTML="Близко к пределу автомата 10 А (2,2 кВт). Проектор — на вторую линию."; }
+  else { al.className="alert"; al.innerHTML=""; }
 }
 
 function renderAll(){ renderSources(); renderRack(); renderDetail(); }
 
 document.querySelectorAll(".vp button").forEach(b=>{
-  b.addEventListener("click",()=>{
-    state = {...PRESETS[b.dataset.v]};
-    renderAll();
-  });
+  b.addEventListener("click",()=>{ state = {...PRESETS[b.dataset.v]}; renderAll(); });
 });
 
 renderAll();
